@@ -1,0 +1,83 @@
+#
+#### GARASJEPORTER ####
+
+#### PORT3 ####
+#### Det er laget en input_boolean.garasjeport3low og en input_boolean.garasjeport3top #####
+#### Automasjonen endrer input_boolean til riktig state ettersom sensorene jeg bruker ikke viste riktig state i mer enn 20 sekunder #####
+
+automation:
+
+  - id: "garasjeport3topclosed"
+    trigger:
+      - platform: state
+        entity_id:
+          - binary_sensor.1001588bb8_0
+        to: "on"
+    condition: []
+    action:
+      - service: input_boolean.turn_off
+        data: {}
+        target:
+          entity_id: input_boolean.garasjeport3top
+
+  - id: "garasjeport3topopen"
+    trigger:
+      - platform: state
+        entity_id:
+          - binary_sensor.1001588bb8_1
+        to: "on"
+    condition: []
+    action:
+      - service: input_boolean.turn_on
+        data: {}
+        target:
+          entity_id: input_boolean.garasjeport3top
+
+  - id: "garasjeport3lowclosed"
+    trigger:
+      - platform: state
+        entity_id:
+          - binary_sensor.1001588bb8_4
+        to: "on"
+    condition: []
+    action:
+      - service: input_boolean.turn_off
+        data: {}
+        target:
+          entity_id: input_boolean.garasjeport3low
+
+  - id: "garasjeport3lowopen"
+    trigger:
+      - platform: state
+        entity_id:
+          - binary_sensor.1001588bb8_2
+        to: "on"
+    condition: []
+    action:
+      - service: input_boolean.turn_on
+        data: {}
+        target:
+          entity_id: input_boolean.garasjeport3low
+
+#### PORT3 SLUTT ####
+
+
+#### Sensorer som viser Lukket, Delvis åpen eller Åpen. Ukjent er hvis en av sensorene hverken viser on eller off ####
+
+sensor:
+  - platform: template
+    sensors:
+      garage_door3:
+        friendly_name: "Garasje3"
+        value_template: >-
+          {% set map = {0:"Lukket", 1:"Delvis åpen", 2:"Ukjent", 3:"Åpen"} %}
+          {% set n = 1 if states('input_boolean.garasjeport3top') == 'on' else 0 %}
+          {% set z = 1 if states('input_boolean.garasjeport3low') == 'on' else 0 %}
+          {% set x = (z * 2) + n %}
+          {{ map[x] if x in map.keys() else 'Error' }}
+        icon_template: >-
+          {% set map = {0:"mdi:garage", 1:"mdi:garage-alert", 2:"mdi:help", 3:"mdi:garage-open"} %}
+          {% set n = 1 if states('input_boolean.garasjeport3top') == 'on' else 0 %}
+          {% set z = 1 if states('input_boolean.garasjeport3low') == 'on' else 0 %}
+          {% set x = (z * 2) + n %}
+          {{ map[x] if x in map.keys() else 'mdi:error' }}
